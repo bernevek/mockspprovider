@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                     validUntil="2020-08-16T14:17:54Z"
+                     entityID="http://localhost:9090">
+    <md:SPSSODescriptor AuthnRequestsSigned="false"
+                        WantAssertionsSigned="false"
+                        protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <md:KeyDescriptor use="signing">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>
+                        MIIDsDCCApigAwIBAgIJAKe+KZXSjFMlMA0GCSqGSIb3DQEBCwUAMG0xCzAJBgNVBAYTAnRlMQ0wCwYDVQQIDAR0ZXN0MQ0wCwYDVQQHDAR0ZXN0MQ0wCwYDVQQKDAR0ZXN0MQ0wCwYDVQQLDAR0ZXN0MQ0wCwYDVQQDDAR0ZXN0MRMwEQYJKoZIhvcNAQkBFgR0ZXN0MB4XDTE5MDgxNDE1NDQ0M1oXDTI0MDgxMjE1NDQ0M1owbTELMAkGA1UEBhMCdGUxDTALBgNVBAgMBHRlc3QxDTALBgNVBAcMBHRlc3QxDTALBgNVBAoMBHRlc3QxDTALBgNVBAsMBHRlc3QxDTALBgNVBAMMBHRlc3QxEzARBgkqhkiG9w0BCQEWBHRlc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDOHiJioATK1MuqA1LRw0ZZsopNt+pZJJipeyTxPy5xCt4vqoqgYCYtfyXvLslykaU7EhAwyF8q3vsWLl3ssyv+WDAfMKm3eLT/i6Lz9PooitEUbeGPrb3AXEVtmXPDdZn7el8x4gPxdtWpkkkOnKXBnOelci+JJois9Qt3IyxOnhw7kCRLkXeo4dLvnn7Ix6jGo97vmpye+Nw8Q1zwRTcpTAskZBwjHwazDYta4aFULDvz9H2exEkI88OnFGWZ0jGK1QxtK/a7zBJ9epbz+o01fLQafE7Cs9F3OsetK7qhBSdViRkcU4oO5yjlGVz91ks7tDn8hr3Bh3UieHDfsCPLAgMBAAGjUzBRMB0GA1UdDgQWBBQjyqzWKLEJfex+HuqhHCiU3dZGYjAfBgNVHSMEGDAWgBQjyqzWKLEJfex+HuqhHCiU3dZGYjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQC0dSc//GeNJKA5KJON7EfJPD9b4a5o7U06bj5KbckrhewwtUHTKYlOH5KqmapMalJ9DZzPl0SM/G/KlSW9BViI20KsIwmuuHx+x81i88dHr2ClQmyNK4CKYzRveosigTLPGFzmiNc61Nb8Qk9rnkwSGiSNwsgZ6SZ1TmlJBy1rBH/qiRSiV3IERgRnPYPMgE/PUd/d1oiOCEtaC2jJh0LkuBFWV6yoDnOurs3d3J2TKRzMmAAD4kq3lQBq4kjflxqpD5pvcsLKnOcYICLtU6gvClS6tpF0GXOmQvh+lYXp9FrXkLN/cL+GZhaf2AQeZEWOQB/IRNwPaQD9QM/l+yBD
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <md:KeyDescriptor use="encryption">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>
+                        MIIDsDCCApigAwIBAgIJAKe+KZXSjFMlMA0GCSqGSIb3DQEBCwUAMG0xCzAJBgNVBAYTAnRlMQ0wCwYDVQQIDAR0ZXN0MQ0wCwYDVQQHDAR0ZXN0MQ0wCwYDVQQKDAR0ZXN0MQ0wCwYDVQQLDAR0ZXN0MQ0wCwYDVQQDDAR0ZXN0MRMwEQYJKoZIhvcNAQkBFgR0ZXN0MB4XDTE5MDgxNDE1NDQ0M1oXDTI0MDgxMjE1NDQ0M1owbTELMAkGA1UEBhMCdGUxDTALBgNVBAgMBHRlc3QxDTALBgNVBAcMBHRlc3QxDTALBgNVBAoMBHRlc3QxDTALBgNVBAsMBHRlc3QxDTALBgNVBAMMBHRlc3QxEzARBgkqhkiG9w0BCQEWBHRlc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDOHiJioATK1MuqA1LRw0ZZsopNt+pZJJipeyTxPy5xCt4vqoqgYCYtfyXvLslykaU7EhAwyF8q3vsWLl3ssyv+WDAfMKm3eLT/i6Lz9PooitEUbeGPrb3AXEVtmXPDdZn7el8x4gPxdtWpkkkOnKXBnOelci+JJois9Qt3IyxOnhw7kCRLkXeo4dLvnn7Ix6jGo97vmpye+Nw8Q1zwRTcpTAskZBwjHwazDYta4aFULDvz9H2exEkI88OnFGWZ0jGK1QxtK/a7zBJ9epbz+o01fLQafE7Cs9F3OsetK7qhBSdViRkcU4oO5yjlGVz91ks7tDn8hr3Bh3UieHDfsCPLAgMBAAGjUzBRMB0GA1UdDgQWBBQjyqzWKLEJfex+HuqhHCiU3dZGYjAfBgNVHSMEGDAWgBQjyqzWKLEJfex+HuqhHCiU3dZGYjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQC0dSc//GeNJKA5KJON7EfJPD9b4a5o7U06bj5KbckrhewwtUHTKYlOH5KqmapMalJ9DZzPl0SM/G/KlSW9BViI20KsIwmuuHx+x81i88dHr2ClQmyNK4CKYzRveosigTLPGFzmiNc61Nb8Qk9rnkwSGiSNwsgZ6SZ1TmlJBy1rBH/qiRSiV3IERgRnPYPMgE/PUd/d1oiOCEtaC2jJh0LkuBFWV6yoDnOurs3d3J2TKRzMmAAD4kq3lQBq4kjflxqpD5pvcsLKnOcYICLtU6gvClS6tpF0GXOmQvh+lYXp9FrXkLN/cL+GZhaf2AQeZEWOQB/IRNwPaQD9QM/l+yBD
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                Location="http://localhost:9090/slo/redirect"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                Location="http://localhost:9090/slo/post"/>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+
+        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                     Location="http://localhost:9090/sso/redirect" index="0" isDefault="true"/>
+        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                     Location="http://localhost:9090/sso/post" index="1"/>
+    </md:SPSSODescriptor>
+</md:EntityDescriptor>
