@@ -1,7 +1,9 @@
 package com.imprivata.saml.controller;
 
+import com.imprivata.saml.service.SsoSamlService;
 import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +30,8 @@ import java.util.Map;
 @Controller
 public class StartController {
 
+    @Autowired
+    SsoSamlService ssoSamlService;
 
     DocumentBuilderFactory documentBuilderFactory;
     DocumentBuilder builder;
@@ -43,13 +47,27 @@ public class StartController {
     }
 
     @PostMapping(value = {"/sso/redirect", "/sso/post"})
-    public ResponseEntity<?> redirect(@RequestBody MultiValueMap<String, String> formData) {
+    public ResponseEntity<?> sso(@RequestBody MultiValueMap<String, String> formData) {
         String response = null;
         try {
             response = new String(Base64.decode(formData.get("SAMLResponse").get(0)));
             Document doc = builder.parse(new InputSource(new StringReader(response)));
+            ssoSamlService.setSessionIndex(doc.getElementsByTagName("saml2:AuthnStatement").item(0).getAttributes().getNamedItem("SessionIndex").getNodeValue());
 //            System.out.println(doc.getElementsByTagName("saml2:AuthnStatement").item(0).getAttributes().getNamedItem("SessionIndex").getNodeValue());
         } catch (Base64DecodingException | IOException | SAXException e) {
+            e.printStackTrace();
+        }
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.TEXT_XML);
+        return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = {"/slo/redirect", "/slo/post"})
+    public ResponseEntity<?> slo(@RequestBody MultiValueMap<String, String> formData) {
+        String response = null;
+        try {
+            response = new String(Base64.decode(formData.get("SAMLResponse").get(0)));
+        } catch (Base64DecodingException e) {
             e.printStackTrace();
         }
         HttpHeaders responseHeaders = new HttpHeaders();

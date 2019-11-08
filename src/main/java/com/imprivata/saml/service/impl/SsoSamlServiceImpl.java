@@ -2,6 +2,7 @@ package com.imprivata.saml.service.impl;
 
 import com.imprivata.saml.model.SamlNameIdFormatEnum;
 import com.imprivata.saml.model.SamlProtocolBinding;
+import com.imprivata.saml.model.SingleLogoutService;
 import com.imprivata.saml.model.SingleSignOnService;
 import com.imprivata.saml.service.MetadataService;
 import com.imprivata.saml.service.SsoSamlService;
@@ -72,6 +73,7 @@ public class SsoSamlServiceImpl implements SsoSamlService {
     private XMLObjectBuilderFactory builderFactory;
     private PrivateKey privateKey;
     private X509Certificate x509Certificate;
+    private String sessionIndex = null;
 
     @PostConstruct
     public void basicRequestsInitialization() throws Base64DecodingException, InvalidKeySpecException, NoSuchAlgorithmException, CertificateException, InitializationException {
@@ -119,12 +121,12 @@ public class SsoSamlServiceImpl implements SsoSamlService {
 
     @Override
     public Model createPostAuthnRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
-        return getPostAuthnRequest(false, model);
+        return getPostRequest(false, model, authnRequest);
     }
 
     @Override
     public Model createSignedPostAuthnRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
-        return getPostAuthnRequest(true, model);
+        return getPostRequest(true, model, authnRequest);
     }
 
     @Override
@@ -137,15 +139,46 @@ public class SsoSamlServiceImpl implements SsoSamlService {
         return getRedirectAuthnRequestUrl(true);
     }
 
-    private Model getPostAuthnRequest(Boolean isSigned, Model model) throws IOException, org.opensaml.xmlsec.signature.support.SignatureException, MarshallingException {
-        authnRequest.setAssertionConsumerServiceURL(currentHost + "/sso/post");
-        SingleSignOnService ssoService = metadataService
-                .getMetadata()
-                .singleSignOnServices
-                .stream()
-                .filter(singleSignOnService -> singleSignOnService.binding.equals(SamlProtocolBinding.HTTP_POST))
-                .findFirst().orElseThrow(IOException::new);
-        authnRequest.setDestination(ssoService.location);
+    @Override
+    public void setSessionIndex(String sessionIndex) {
+        this.sessionIndex = sessionIndex;
+    }
+
+    @Override
+    public Model createPostLogoutRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
+        return getPostRequest(false, model, logoutRequest);
+    }
+
+    @Override
+    public Model createSignedPostLogoutRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
+        return getPostRequest(true, model, logoutRequest);
+    }
+
+    private Model getPostRequest(Boolean isSigned, Model model, RequestAbstractType request) throws IOException, org.opensaml.xmlsec.signature.support.SignatureException, MarshallingException {
+        if (request instanceof AuthnRequest) {
+            SingleSignOnService ssoService = metadataService
+                    .getMetadata()
+                    .singleSignOnServices
+                    .stream()
+                    .filter(singleSignOnService -> singleSignOnService.binding.equals(SamlProtocolBinding.HTTP_POST))
+                    .findFirst().orElseThrow(IOException::new);
+            request.setDestination(ssoService.location);
+            ((AuthnRequest)request).setAssertionConsumerServiceURL(currentHost + "/sso/post");
+            model.addAttribute("PostBindingLink", ssoService.location);
+        }
+        if (request instanceof LogoutRequest) {
+            SingleLogoutService sloService = metadataService
+                    .getMetadata()
+                    .singleLogoutServices
+                    .stream()
+                    .filter(singleLogoutService -> singleLogoutService.binding.equals(SamlProtocolBinding.HTTP_POST))
+                    .findFirst().orElseThrow(IOException::new);
+            request.setDestination(sloService.location);
+            SessionIndex sessionIndex = ((SessionIndexBuilder) builderFactory.getBuilder(SessionIndex.DEFAULT_ELEMENT_NAME)).buildObject();
+            sessionIndex.setSessionIndex(this.sessionIndex);
+            ((LogoutRequest)request).getSessionIndexes().add(sessionIndex);
+            model.addAttribute("PostBindingLink", sloService.location);
+        }
         Element authnRequestDom = null;
         if (isSigned){
             BasicX509Credential x509Credential = new BasicX509Credential(x509Certificate, privateKey);
@@ -156,16 +189,15 @@ public class SsoSamlServiceImpl implements SsoSamlService {
             signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
             signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
             signature.setKeyInfo(keyInfo);
-            authnRequest.setSignature(signature);
-            authnRequestDom = marshallerFactory.getMarshaller(authnRequest).marshall(authnRequest);
+            request.setSignature(signature);
+            authnRequestDom = marshallerFactory.getMarshaller(request).marshall(request);
             org.opensaml.xmlsec.signature.support.Signer.signObject(signature);
         } else {
-            authnRequest.setSignature(null);
-            authnRequestDom = marshallerFactory.getMarshaller(authnRequest).marshall(authnRequest);
+            request.setSignature(null);
+            authnRequestDom = marshallerFactory.getMarshaller(request).marshall(request);
         }
         String samlAuthnRequest = SerializeSupport.nodeToString(authnRequestDom);
         samlAuthnRequest = Base64.encode(samlAuthnRequest.getBytes("UTF-8"));
-        model.addAttribute("PostBindingLink", ssoService.location);
         model.addAttribute("SAMLRequest", samlAuthnRequest);
         return model;
     }

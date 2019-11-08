@@ -81,6 +81,22 @@ public class MainController {
         }
     }
 
+    @GetMapping(value = "/sloPostBinding")
+    public String postLogoutRequest(Model model, @RequestParam(required = false) boolean isSigned) {
+        try {
+            if (isSigned) {
+                ssoSamlService.createSignedPostLogoutRequest(model);
+            }
+            else
+                ssoSamlService.createPostLogoutRequest(model);
+        } catch (MarshallingException |
+                IOException |
+                org.opensaml.xmlsec.signature.support.SignatureException e) {
+            return "badRequest";
+        }
+        return "postBinding";
+    }
+
     @GetMapping(value = "/SpMetadata")
     public ResponseEntity<?> getSpMetadata() throws IOException {
         String metadata = fileRepository.readSpMetadataFile().replaceAll("http://localhost:9090", currentHost);
