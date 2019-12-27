@@ -50,13 +50,13 @@ public class MainController {
     }
 
     @GetMapping(value = "/postBinding")
-    public String postAuthRequest(Model model, @RequestParam(required = false) boolean isSigned) {
+    public String postAuthRequest(Model model, @RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
         try {
             if (isSigned) {
-                ssoSamlService.createSignedPostAuthnRequest(model);
+                ssoSamlService.createSignedPostAuthnRequest(model, entityId);
             }
             else
-                ssoSamlService.createPostAuthnRequest(model);
+                ssoSamlService.createPostAuthnRequest(model, entityId);
         } catch (MarshallingException |
                 IOException |
                 org.opensaml.xmlsec.signature.support.SignatureException e) {
@@ -66,12 +66,12 @@ public class MainController {
     }
 
     @GetMapping(value = "/redirectBinding")
-    public String redirectAuthRequest(@RequestParam(required = false) boolean isSigned) {
+    public String redirectAuthRequest(@RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
         try {
             if (isSigned)
-                return "redirect:" + ssoSamlService.createSignedRedirectAuthnRequest();
+                return "redirect:" + ssoSamlService.createSignedRedirectAuthnRequest(entityId);
             else
-                return "redirect:" + ssoSamlService.createRedirectAuthnRequest();
+                return "redirect:" + ssoSamlService.createRedirectAuthnRequest(entityId);
         } catch (InvalidKeyException |
                 SignatureException |
                 NoSuchAlgorithmException |
@@ -82,13 +82,13 @@ public class MainController {
     }
 
     @GetMapping(value = "/sloPostBinding")
-    public String postLogoutRequest(Model model, @RequestParam(required = false) boolean isSigned) {
+    public String postLogoutRequest(Model model, @RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
         try {
             if (isSigned) {
-                ssoSamlService.createSignedPostLogoutRequest(model);
+                ssoSamlService.createSignedPostLogoutRequest(model, entityId);
             }
             else
-                ssoSamlService.createPostLogoutRequest(model);
+                ssoSamlService.createPostLogoutRequest(model, entityId);
         } catch (MarshallingException |
                 IOException |
                 org.opensaml.xmlsec.signature.support.SignatureException e) {

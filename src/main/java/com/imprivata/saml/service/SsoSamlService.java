@@ -11,18 +11,19 @@ import java.security.SignatureException;
 
 public interface SsoSamlService {
 
-    Model createPostAuthnRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    Model createPostAuthnRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 
-    Model createSignedPostAuthnRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    Model createSignedPostAuthnRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 
-    String createRedirectAuthnRequest() throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
+    String createRedirectAuthnRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
 
-    String createSignedRedirectAuthnRequest() throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
+    String createSignedRedirectAuthnRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
 
     void setSessionIndex(String sessionIndex);
 
-    Model createPostLogoutRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    void addSessionIndex(String entityId, String sessionIndex);
 
-    Model createSignedPostLogoutRequest(Model model) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    Model createPostLogoutRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 
+    Model createSignedPostLogoutRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 }

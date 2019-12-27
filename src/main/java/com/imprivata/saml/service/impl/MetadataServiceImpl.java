@@ -22,27 +22,71 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class MetadataServiceImpl implements MetadataService {
 
     private IdpSaml2Metadata metadata;
+    private Map<String, IdpSaml2Metadata> metadataMap = new HashMap<>();
 
     @Override
     public void setMetadata(MultipartFile file) throws IOException, ComponentInitializationException, ResolverException, ParserConfigurationException, SAXException {
         EntityDescriptor entityDescriptor = readFromFile(file);
-        metadata = getIdpSaml2Metadata(entityDescriptor);
+        IdpSaml2Metadata idpSaml2Metadata = getIdpSaml2Metadata(entityDescriptor);
+        metadataMap.put(idpSaml2Metadata.entityId, idpSaml2Metadata);
+        metadata = idpSaml2Metadata;
     }
 
     @Override
-    public IdpSaml2Metadata getMetadata() throws IOException {
-        if (metadata == null)
-            throw new IOException("No Idp metadata");
-        return this.metadata;
+    public IdpSaml2Metadata getMetadata(String entityId) throws IOException {
+        if (entityId == null) {
+            if (metadata == null)
+                throw new IOException("No Idp metadata");
+            return this.metadata;
+        } else {
+            return Optional.of(metadataMap.get(entityId)).orElseThrow(IOException::new);
+        }
+    }
+
+    @Override
+    public void setMetadata(String url) throws IOException, ParserConfigurationException, SAXException, ResolverException, ComponentInitializationException {
+        EntityDescriptor entityDescriptor = readFromUrl(url);
+        IdpSaml2Metadata idpSaml2Metadata = getIdpSaml2Metadata(entityDescriptor);
+        metadataMap.put(idpSaml2Metadata.entityId, idpSaml2Metadata);
+        metadata = idpSaml2Metadata;
+    }
+
+    @Override
+    public void deleteMetadata(String entityId) {
+        metadataMap.remove(entityId);
+    }
+
+    @Override
+    public String[] getMetadatas() {
+        String[] idpMetadatas = new String[metadataMap.size()];
+        return metadataMap.keySet().toArray(idpMetadatas);
+    }
+
+    private EntityDescriptor readFromUrl(String stringUrl) throws IOException, ComponentInitializationException, ResolverException, ParserConfigurationException, SAXException {
+
+        URL url = new URL(stringUrl);
+        URLConnection connection = url.openConnection();
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+
+        InputStream targetStream = connection.getInputStream();
+
+        Document metadataDoc = getDocument(targetStream);
+        if (metadataDoc == null) {
+            return null;
+        }
+        return resolveSpMetadataDoc(metadataDoc);
     }
 
     private EntityDescriptor readFromFile(MultipartFile uploadedInput) throws IOException, ComponentInitializationException, ResolverException, ParserConfigurationException, SAXException {
@@ -82,11 +126,11 @@ public class MetadataServiceImpl implements MetadataService {
         return doc;
     }
 
-    private IdpSaml2Metadata getIdpSaml2Metadata(EntityDescriptor entityDescriptor) {
+    private IdpSaml2Metadata getIdpSaml2Metadata(EntityDescriptor entityDescriptor) throws IOException {
         if ((entityDescriptor != null) && entityDescriptor.isValid()) {
             return getRequiredIdpMetadata(entityDescriptor);
         } else {
-            return null;
+            throw new IOException("Cannot parse metadata");
         }
     }
 

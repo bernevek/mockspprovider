@@ -52,7 +52,11 @@ public class StartController {
         try {
             response = new String(Base64.decode(formData.get("SAMLResponse").get(0)));
             Document doc = builder.parse(new InputSource(new StringReader(response)));
-            ssoSamlService.setSessionIndex(doc.getElementsByTagName("saml2:AuthnStatement").item(0).getAttributes().getNamedItem("SessionIndex").getNodeValue());
+            String sessionIndex = doc.getElementsByTagName("saml2:AuthnStatement").item(0).getAttributes().getNamedItem("SessionIndex").getNodeValue();
+            String entityId = doc.getElementsByTagName("saml2:Issuer").item(0).getNodeValue();
+//            ssoSamlService.setSessionIndex(sessionIndex);
+            ssoSamlService.addSessionIndex(entityId, sessionIndex);
+
 //            System.out.println(doc.getElementsByTagName("saml2:AuthnStatement").item(0).getAttributes().getNamedItem("SessionIndex").getNodeValue());
         } catch (Base64DecodingException | IOException | SAXException e) {
             e.printStackTrace();
