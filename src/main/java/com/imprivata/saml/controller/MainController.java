@@ -97,6 +97,23 @@ public class MainController {
         return "postBinding";
     }
 
+    @GetMapping(value = "/sloRedirectBinding")
+    public String redirectLogoutRequest(@RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
+        try {
+            if (isSigned) {
+                return "redirect:" + ssoSamlService.createSignedRedirectLogoutRequest(entityId);
+            }
+            else
+                return "redirect:" + ssoSamlService.createRedirectLogoutRequest(entityId);
+        } catch (MarshallingException |
+                IOException |
+                NoSuchAlgorithmException |
+                SignatureException |
+                InvalidKeyException e) {
+            return "badRequest";
+        }
+    }
+
     @GetMapping(value = "/SpMetadata")
     public ResponseEntity<?> getSpMetadata() throws IOException {
         String metadata = fileRepository.readSpMetadataFile().replaceAll("http://localhost:9090", currentHost);
