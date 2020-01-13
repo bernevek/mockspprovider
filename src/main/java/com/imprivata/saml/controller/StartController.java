@@ -37,8 +37,8 @@ public class StartController {
     @Autowired
     SsoSamlService ssoSamlService;
 
-    DocumentBuilderFactory documentBuilderFactory;
-    DocumentBuilder builder;
+    private DocumentBuilderFactory documentBuilderFactory;
+    private DocumentBuilder builder;
 
     @PostConstruct
     public void init() {
@@ -52,7 +52,7 @@ public class StartController {
 
     @PostMapping(value = {"/sso/redirect", "/sso/post"})
     public String sso(Model model, @RequestBody MultiValueMap<String, String> formData) {
-        String response = null;
+        String response;
         try {
             response = new String(Base64.decode(formData.get("SAMLResponse").get(0)));
             Document responseDoc = builder.parse(new InputSource(new StringReader(response)));
@@ -66,15 +66,12 @@ public class StartController {
             return "/badRequest";
         }
         model.addAttribute("SAMLResponse", response);
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.setContentType(MediaType.TEXT_XML);
-//        return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
         return "/response";
     }
 
     @PostMapping(value = "/slo/post")
     public String sloPost(Model model, @RequestBody MultiValueMap<String, String> formData) {
-        String response = null;
+        String response;
         try {
             response = new String(Base64.decode(formData.get("SAMLResponse").get(0)));
             Document responseDoc = builder.parse(new InputSource(new StringReader(response)));
@@ -84,15 +81,12 @@ public class StartController {
             return "/badRequest";
         }
         model.addAttribute("SAMLResponse", response);
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.setContentType(MediaType.TEXT_XML);
-//        return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
         return "/response";
     }
 
     @GetMapping(value = "/slo/redirect")
     public String sloRedirect(Model model, @RequestParam String SAMLResponse, @RequestParam String SigAlg, @RequestParam String Signature) {
-        String response = null;
+        String response;
         try {
             Inflater inflater = new Inflater(true);
             inflater.setInput(Base64.decode(SAMLResponse));
@@ -109,9 +103,6 @@ public class StartController {
         model.addAttribute("SAMLResponse", response);
         model.addAttribute("SigAlg", SigAlg);
         model.addAttribute("Signature", Signature);
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.setContentType(MediaType.TEXT_XML);
-//        return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
         return "/response";
     }
 }
