@@ -79,7 +79,8 @@ public class SsoSamlServiceImpl implements SsoSamlService {
     private Map<String, String> sessionIndexes;
 
     @PostConstruct
-    public void basicRequestsInitialization() throws Base64DecodingException, InvalidKeySpecException, NoSuchAlgorithmException, CertificateException, InitializationException {
+    public void basicRequestsInitialization() throws Base64DecodingException, InvalidKeySpecException,
+        NoSuchAlgorithmException, CertificateException, InitializationException {
         InitializationService.initialize();
         currentHost = domain + ":" + port;
 
@@ -94,9 +95,9 @@ public class SsoSamlServiceImpl implements SsoSamlService {
         sessionIndexes = new HashMap<>();
     }
 
-    private RequestAbstractType initRequest(RequestAbstractType request) {
+    private RequestAbstractType initRequest(RequestAbstractType request, String requestId) {
         request.setIssueInstant(new DateTime());
-        request.setID("ONELOGIN_" + UUID.randomUUID().toString());
+        request.setID(requestId == null ? "ONELOGIN_" + UUID.randomUUID().toString() : requestId);
         request.setVersion(SAMLVersion.VERSION_20);
         Issuer issuer = ((IssuerBuilder) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME)).buildObject();
         issuer.setValue(currentHost);
@@ -120,27 +121,31 @@ public class SsoSamlServiceImpl implements SsoSamlService {
     }
 
     @Override
-    public Model createPostAuthnRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
+    public Model createPostAuthnRequest(Model model, String entityId, String requestId) throws MarshallingException,
+        IOException, org.opensaml.xmlsec.signature.support.SignatureException {
         AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-        return getPostRequest(false, model, initRequest(authnRequest), entityId);
+        return getPostRequest(false, model, initRequest(authnRequest, requestId), entityId);
     }
 
     @Override
-    public Model createSignedPostAuthnRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
+    public Model createSignedPostAuthnRequest(Model model, String entityId, String requestId)
+        throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
         AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-        return getPostRequest(true, model, initRequest(authnRequest), entityId);
+        return getPostRequest(true, model, initRequest(authnRequest, requestId), entityId);
     }
 
     @Override
-    public String createRedirectAuthnRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
+    public String createRedirectAuthnRequest(String entityId, String requestId) throws InvalidKeyException,
+        SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
         AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-        return getRedirectAuthnRequestUrl(false, initRequest(authnRequest), entityId);
+        return getRedirectAuthnRequestUrl(false, initRequest(authnRequest, requestId), entityId);
     }
 
     @Override
-    public String createSignedRedirectAuthnRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
+    public String createSignedRedirectAuthnRequest(String entityId, String requestId) throws InvalidKeyException,
+        SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
         AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-        return getRedirectAuthnRequestUrl(true, initRequest(authnRequest), entityId);
+        return getRedirectAuthnRequestUrl(true, initRequest(authnRequest, requestId), entityId);
     }
 
     @Override
@@ -154,30 +159,35 @@ public class SsoSamlServiceImpl implements SsoSamlService {
     }
 
     @Override
-    public Model createPostLogoutRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
+    public Model createPostLogoutRequest(Model model, String entityId, String requestId) throws MarshallingException,
+        IOException, org.opensaml.xmlsec.signature.support.SignatureException {
         LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
-        return getPostRequest(false, model, initRequest(logoutRequest), entityId);
+        return getPostRequest(false, model, initRequest(logoutRequest, requestId), entityId);
     }
 
     @Override
-    public Model createSignedPostLogoutRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
+    public Model createSignedPostLogoutRequest(Model model, String entityId, String requestId)
+        throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException {
         LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
-        return getPostRequest(true, model, initRequest(logoutRequest), entityId);
+        return getPostRequest(true, model, initRequest(logoutRequest, requestId), entityId);
     }
 
     @Override
-    public String createRedirectLogoutRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
+    public String createRedirectLogoutRequest(String entityId, String requestId) throws InvalidKeyException,
+        SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
         LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
-        return getRedirectAuthnRequestUrl(false, initRequest(logoutRequest), entityId);
+        return getRedirectAuthnRequestUrl(false, initRequest(logoutRequest, requestId), entityId);
     }
 
     @Override
-    public String createSignedRedirectLogoutRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
+    public String createSignedRedirectLogoutRequest(String entityId, String requestId) throws InvalidKeyException,
+        SignatureException, NoSuchAlgorithmException, MarshallingException, IOException {
         LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
-        return getRedirectAuthnRequestUrl(true, initRequest(logoutRequest), entityId);
+        return getRedirectAuthnRequestUrl(true, initRequest(logoutRequest, requestId), entityId);
     }
 
-    private Model getPostRequest(Boolean isSigned, Model model, RequestAbstractType request, String entityId) throws IOException, org.opensaml.xmlsec.signature.support.SignatureException, MarshallingException {
+    private Model getPostRequest(Boolean isSigned, Model model, RequestAbstractType request, String entityId)
+        throws IOException, org.opensaml.xmlsec.signature.support.SignatureException, MarshallingException {
         if (request instanceof AuthnRequest) {
             SingleSignOnService ssoService = metadataService
                     .getMetadata(entityId)
@@ -207,7 +217,9 @@ public class SsoSamlServiceImpl implements SsoSamlService {
             BasicX509Credential x509Credential = new BasicX509Credential(x509Certificate, privateKey);
             x509Credential.setUsageType(UsageType.SIGNING);
             KeyInfo keyInfo = generateKeyInfo(x509Credential);
-            org.opensaml.xmlsec.signature.Signature signature = (org.opensaml.xmlsec.signature.Signature)builderFactory.getBuilder(org.opensaml.xmlsec.signature.Signature.DEFAULT_ELEMENT_NAME).buildObject(org.opensaml.xmlsec.signature.Signature.DEFAULT_ELEMENT_NAME);
+            org.opensaml.xmlsec.signature.Signature signature = (org.opensaml.xmlsec.signature.Signature)builderFactory
+                .getBuilder(org.opensaml.xmlsec.signature.Signature.DEFAULT_ELEMENT_NAME)
+                .buildObject(org.opensaml.xmlsec.signature.Signature.DEFAULT_ELEMENT_NAME);
             signature.setSigningCredential(x509Credential);
             signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
             signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
@@ -225,7 +237,8 @@ public class SsoSamlServiceImpl implements SsoSamlService {
         return model;
     }
 
-    private String getRedirectAuthnRequestUrl(Boolean isSigned, RequestAbstractType request, String entityId) throws MarshallingException, IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    private String getRedirectAuthnRequestUrl(Boolean isSigned, RequestAbstractType request, String entityId)
+        throws MarshallingException, IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         request.setSignature(null);
         String location = "";
         if (request instanceof AuthnRequest) {

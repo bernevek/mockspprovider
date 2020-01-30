@@ -11,23 +11,23 @@ import java.security.SignatureException;
 
 public interface SsoSamlService {
 
-    Model createPostAuthnRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    Model createPostAuthnRequest(Model model, String entityId, String requestId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 
-    Model createSignedPostAuthnRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    Model createSignedPostAuthnRequest(Model model, String entityId, String requestId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 
-    String createRedirectAuthnRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
+    String createRedirectAuthnRequest(String entityId, String requestId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
 
-    String createSignedRedirectAuthnRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
+    String createSignedRedirectAuthnRequest(String entityId, String requestId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
 
     void setSessionIndex(String sessionIndex);
 
     void addSessionIndex(String entityId, String sessionIndex);
 
-    Model createPostLogoutRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    Model createPostLogoutRequest(Model model, String entityId, String requestId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 
-    Model createSignedPostLogoutRequest(Model model, String entityId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
+    Model createSignedPostLogoutRequest(Model model, String entityId, String requestId) throws MarshallingException, IOException, org.opensaml.xmlsec.signature.support.SignatureException;
 
-    String createRedirectLogoutRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
+    String createRedirectLogoutRequest(String entityId, String requestId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
 
-    String createSignedRedirectLogoutRequest(String entityId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
+    String createSignedRedirectLogoutRequest(String entityId, String requestId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, MarshallingException, IOException;
 }

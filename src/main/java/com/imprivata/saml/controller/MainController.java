@@ -70,13 +70,18 @@ public class MainController {
     }
 
     @GetMapping(value = "/postBinding")
-    public String postAuthRequest(Model model, @RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
+    public String postAuthRequest(
+        Model model,
+        @RequestParam(required = false) boolean isSigned,
+        @RequestParam(required = false) String entityId,
+        @RequestParam(required = false) String requestId
+    ) {
         try {
             if (isSigned) {
-                ssoSamlService.createSignedPostAuthnRequest(model, entityId);
+                ssoSamlService.createSignedPostAuthnRequest(model, entityId, requestId);
             }
             else
-                ssoSamlService.createPostAuthnRequest(model, entityId);
+                ssoSamlService.createPostAuthnRequest(model, entityId, requestId);
         } catch (MarshallingException |
                 IOException |
                 org.opensaml.xmlsec.signature.support.SignatureException e) {
@@ -86,12 +91,16 @@ public class MainController {
     }
 
     @GetMapping(value = "/redirectBinding")
-    public String redirectAuthRequest(@RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
+    public String redirectAuthRequest(
+        @RequestParam(required = false) boolean isSigned,
+        @RequestParam(required = false) String entityId,
+        @RequestParam(required = false) String requestId
+    ) {
         try {
             if (isSigned)
-                return "redirect:" + ssoSamlService.createSignedRedirectAuthnRequest(entityId);
+                return "redirect:" + ssoSamlService.createSignedRedirectAuthnRequest(entityId, requestId);
             else
-                return "redirect:" + ssoSamlService.createRedirectAuthnRequest(entityId);
+                return "redirect:" + ssoSamlService.createRedirectAuthnRequest(entityId, requestId);
         } catch (InvalidKeyException |
                 SignatureException |
                 NoSuchAlgorithmException |
@@ -102,13 +111,18 @@ public class MainController {
     }
 
     @GetMapping(value = "/sloPostBinding")
-    public String postLogoutRequest(Model model, @RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
+    public String postLogoutRequest(
+        Model model,
+        @RequestParam(required = false) boolean isSigned,
+        @RequestParam(required = false) String entityId,
+        @RequestParam(required = false) String requestId
+    ) {
         try {
             if (isSigned) {
-                ssoSamlService.createSignedPostLogoutRequest(model, entityId);
+                ssoSamlService.createSignedPostLogoutRequest(model, entityId, requestId);
             }
             else
-                ssoSamlService.createPostLogoutRequest(model, entityId);
+                ssoSamlService.createPostLogoutRequest(model, entityId, requestId);
         } catch (MarshallingException |
                 IOException |
                 org.opensaml.xmlsec.signature.support.SignatureException e) {
@@ -118,13 +132,17 @@ public class MainController {
     }
 
     @GetMapping(value = "/sloRedirectBinding")
-    public String redirectLogoutRequest(@RequestParam(required = false) boolean isSigned, @RequestParam(required = false) String entityId) {
+    public String redirectLogoutRequest(
+        @RequestParam(required = false) boolean isSigned,
+        @RequestParam(required = false) String entityId,
+        @RequestParam(required = false) String requestId
+    ) {
         try {
             if (isSigned) {
-                return "redirect:" + ssoSamlService.createSignedRedirectLogoutRequest(entityId);
+                return "redirect:" + ssoSamlService.createSignedRedirectLogoutRequest(entityId, requestId);
             }
             else
-                return "redirect:" + ssoSamlService.createRedirectLogoutRequest(entityId);
+                return "redirect:" + ssoSamlService.createRedirectLogoutRequest(entityId, requestId);
         } catch (MarshallingException |
                 IOException |
                 NoSuchAlgorithmException |
