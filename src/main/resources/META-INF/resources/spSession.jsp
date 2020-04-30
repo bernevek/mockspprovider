@@ -8,7 +8,7 @@
 <body>
 <div>
     <c:choose>
-        <c:when test="${SpSession=='deleted'}">
+        <c:when test="${SpSessionDeleted==true}">
             <div>SP session is terminated</div>
         </c:when>
         <c:otherwise>

@@ -53,11 +53,8 @@ import java.util.zip.DeflaterOutputStream;
 @Service
 public class SsoSamlServiceImpl implements SsoSamlService {
 
-    @Value("${domain}")
-    private String domain;
-
-    @Value("${server.port}")
-    private String port;
+    @Value("${currentHost}")
+    private String currentHost;
 
     @Value("${encriptedPrivateKey}")
     public String encriptedPrivateKey;
@@ -68,7 +65,6 @@ public class SsoSamlServiceImpl implements SsoSamlService {
     @Autowired
     private MetadataService metadataService;
 
-    private String currentHost;
     private AuthnRequestBuilder authnRequestBuilder;
     private LogoutRequestBuilder logoutRequestBuilder;
     private MarshallerFactory marshallerFactory;
@@ -82,7 +78,6 @@ public class SsoSamlServiceImpl implements SsoSamlService {
     public void basicRequestsInitialization() throws Base64DecodingException, InvalidKeySpecException,
         NoSuchAlgorithmException, CertificateException, InitializationException {
         InitializationService.initialize();
-        currentHost = domain + ":" + port;
 
         privateKey = getPrivateKey(encriptedPrivateKey);
 

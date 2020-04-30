@@ -5,6 +5,7 @@ import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
@@ -25,14 +26,14 @@ import java.io.StringReader;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
-import static com.imprivata.saml.common.Constants.DELETED;
-import static com.imprivata.saml.common.Constants.SESSION_COOKIE;
-
 @Controller
 public class StartController {
 
     @Autowired
     SsoSamlService ssoSamlService;
+
+    @Value("${spSpecifiedSessionCookieName}")
+    private String spSpecifiedSessionCookieName;
 
     private DocumentBuilderFactory documentBuilderFactory;
     private DocumentBuilder builder;
@@ -62,7 +63,7 @@ public class StartController {
             return "/response";
         } catch (Base64DecodingException | IOException | SAXException e) {
             e.printStackTrace();
-            servletResponse = setSessionCookie(DELETED, servletResponse);
+            servletResponse = setSessionCookie("", servletResponse);
             return "/badRequest";
         }
     }
@@ -70,7 +71,7 @@ public class StartController {
     @PostMapping(value = "/slo/post")
     public String sloPost(Model model, @RequestBody MultiValueMap<String, String> formData, HttpServletResponse servletResponse) {
         String response;
-        servletResponse = setSessionCookie(DELETED, servletResponse);
+        servletResponse = setSessionCookie("", servletResponse);
         try {
             response = new String(Base64.decode(formData.get("SAMLResponse").get(0)));
             Document responseDoc = builder.parse(new InputSource(new StringReader(response)));
@@ -86,7 +87,7 @@ public class StartController {
     @GetMapping(value = "/slo/redirect")
     public String sloRedirect(Model model, @RequestParam String SAMLResponse, @RequestParam String SigAlg, @RequestParam String Signature, HttpServletResponse servletResponse) {
         String response;
-        servletResponse = setSessionCookie(DELETED, servletResponse);
+        servletResponse = setSessionCookie("", servletResponse);
         try {
             Inflater inflater = new Inflater(true);
             inflater.setInput(Base64.decode(SAMLResponse));
@@ -107,7 +108,11 @@ public class StartController {
     }
 
     private HttpServletResponse setSessionCookie(String cookie, HttpServletResponse servletResponse) {
-        Cookie sessionCookie = new Cookie(SESSION_COOKIE, cookie);
+        Cookie sessionCookie = new Cookie(spSpecifiedSessionCookieName, cookie);
+        if (cookie.equals("")) {
+            sessionCookie.setMaxAge(0);
+        }
+        sessionCookie.setHttpOnly(true);
         sessionCookie.setPath("/");
         servletResponse.addCookie(sessionCookie);
         return servletResponse;

@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,9 +32,7 @@ import java.io.StringReader;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-
-import static com.imprivata.saml.common.Constants.DELETED;
-import static com.imprivata.saml.common.Constants.SESSION_COOKIE;
+import java.util.Arrays;
 
 @Controller()
 public class MainController {
@@ -44,19 +43,10 @@ public class MainController {
     @Autowired
     FileRepository fileRepository;
 
+    @Value("${spSpecifiedSessionCookieName}")
+    private String spSpecifiedSessionCookieName;
 
-    @Value("${domain}")
-    private String domain;
-
-    @Value("${server.port}")
-    private String port;
-
-    @Value("${encriptedPrivateKey}")
-    public String encriptedPrivateKey;
-
-    @Value("${publicKeyPemCertificate}")
-    public String publicKeyPemCertificate;
-
+    @Value("${currentHost}")
     private String currentHost;
 
     private DocumentBuilderFactory documentBuilderFactory;
@@ -65,7 +55,6 @@ public class MainController {
 
     @PostConstruct
     public void init() {
-        currentHost = domain + ":" + port;
         documentBuilderFactory = DocumentBuilderFactory.newInstance();
         try {
             builder = documentBuilderFactory.newDocumentBuilder();
@@ -77,12 +66,12 @@ public class MainController {
     @GetMapping(value = "/postBinding")
     public String postAuthRequest(
         Model model,
-        @CookieValue(name = SESSION_COOKIE, defaultValue = DELETED) String sessionCookie,
         @RequestParam(required = false) boolean isSigned,
         @RequestParam(required = false) String entityId,
-        @RequestParam(required = false) String requestId
+        @RequestParam(required = false) String requestId,
+        HttpServletRequest servletRequest
     ) {
-        if (!sessionCookie.equals(DELETED)) {
+        if (Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
             return "spSession";
         }
         try {
@@ -101,12 +90,12 @@ public class MainController {
 
     @GetMapping(value = "/redirectBinding")
     public String redirectAuthRequest(
-        @CookieValue(name = SESSION_COOKIE, defaultValue = DELETED) String sessionCookie,
         @RequestParam(required = false) boolean isSigned,
         @RequestParam(required = false) String entityId,
-        @RequestParam(required = false) String requestId
+        @RequestParam(required = false) String requestId,
+        HttpServletRequest servletRequest
     ) {
-        if (!sessionCookie.equals(DELETED)) {
+        if (Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
             return "spSession";
         }
         try {
@@ -166,13 +155,19 @@ public class MainController {
     }
 
     @GetMapping(value = "/terminateSpSession")
-    public String terminateSpSession(Model model, @CookieValue(name = SESSION_COOKIE, defaultValue = DELETED) String sessionCookieValue, HttpServletResponse servletResponse) {
-        if (!sessionCookieValue.equals(DELETED)) {
-            Cookie sessionCookie = new Cookie(SESSION_COOKIE, DELETED);
+    public String terminateSpSession(
+        Model model,
+        HttpServletRequest servletRequest,
+        HttpServletResponse servletResponse
+    ) {
+        if (Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
+            Cookie sessionCookie = new Cookie(spSpecifiedSessionCookieName, "");
+            sessionCookie.setMaxAge(0);
+            sessionCookie.setHttpOnly(true);
             sessionCookie.setPath("/");
             servletResponse.addCookie(sessionCookie);
         }
-        model.addAttribute("SpSession", DELETED);
+        model.addAttribute("SpSessionDeleted", true);
         return "spSession";
     }
 
