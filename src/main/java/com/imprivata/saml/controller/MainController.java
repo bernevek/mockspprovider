@@ -71,7 +71,7 @@ public class MainController {
         @RequestParam(required = false) String requestId,
         HttpServletRequest servletRequest
     ) {
-        if (Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
+        if (servletRequest.getCookies()!=null && Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
             return "spSession";
         }
         try {
@@ -95,7 +95,7 @@ public class MainController {
         @RequestParam(required = false) String requestId,
         HttpServletRequest servletRequest
     ) {
-        if (Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
+        if (servletRequest.getCookies()!=null && Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
             return "spSession";
         }
         try {
@@ -160,7 +160,7 @@ public class MainController {
         HttpServletRequest servletRequest,
         HttpServletResponse servletResponse
     ) {
-        if (Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
+        if (servletRequest.getCookies()!=null && Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
             Cookie sessionCookie = new Cookie(spSpecifiedSessionCookieName, "");
             sessionCookie.setMaxAge(0);
             sessionCookie.setHttpOnly(true);
