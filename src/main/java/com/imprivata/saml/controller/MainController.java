@@ -21,6 +21,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,6 +31,9 @@ import java.io.StringReader;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+
+import static com.imprivata.saml.common.Constants.DELETED;
+import static com.imprivata.saml.common.Constants.SESSION_COOKIE;
 
 @Controller()
 public class MainController {
@@ -72,10 +77,14 @@ public class MainController {
     @GetMapping(value = "/postBinding")
     public String postAuthRequest(
         Model model,
+        @CookieValue(name = SESSION_COOKIE, defaultValue = DELETED) String sessionCookie,
         @RequestParam(required = false) boolean isSigned,
         @RequestParam(required = false) String entityId,
         @RequestParam(required = false) String requestId
     ) {
+        if (!sessionCookie.equals(DELETED)) {
+            return "spSession";
+        }
         try {
             if (isSigned) {
                 ssoSamlService.createSignedPostAuthnRequest(model, entityId, requestId);
@@ -92,10 +101,14 @@ public class MainController {
 
     @GetMapping(value = "/redirectBinding")
     public String redirectAuthRequest(
+        @CookieValue(name = SESSION_COOKIE, defaultValue = DELETED) String sessionCookie,
         @RequestParam(required = false) boolean isSigned,
         @RequestParam(required = false) String entityId,
         @RequestParam(required = false) String requestId
     ) {
+        if (!sessionCookie.equals(DELETED)) {
+            return "spSession";
+        }
         try {
             if (isSigned)
                 return "redirect:" + ssoSamlService.createSignedRedirectAuthnRequest(entityId, requestId);
@@ -150,6 +163,17 @@ public class MainController {
                 InvalidKeyException e) {
             return "badRequest";
         }
+    }
+
+    @GetMapping(value = "/terminateSpSession")
+    public String terminateSpSession(Model model, @CookieValue(name = SESSION_COOKIE, defaultValue = DELETED) String sessionCookieValue, HttpServletResponse servletResponse) {
+        if (!sessionCookieValue.equals(DELETED)) {
+            Cookie sessionCookie = new Cookie(SESSION_COOKIE, DELETED);
+            sessionCookie.setPath("/");
+            servletResponse.addCookie(sessionCookie);
+        }
+        model.addAttribute("SpSession", DELETED);
+        return "spSession";
     }
 
     @GetMapping(value = "/SpMetadata")
