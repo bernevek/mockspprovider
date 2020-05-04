@@ -72,7 +72,7 @@ public class MainController {
         HttpServletRequest servletRequest
     ) {
         if (servletRequest.getCookies()!=null && Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
-            return "spSession";
+            return "redirect:/SpSession";
         }
         try {
             if (isSigned) {
@@ -96,7 +96,7 @@ public class MainController {
         HttpServletRequest servletRequest
     ) {
         if (servletRequest.getCookies()!=null && Arrays.stream(servletRequest.getCookies()).anyMatch(cookie -> cookie.getName().equals(spSpecifiedSessionCookieName))) {
-            return "spSession";
+            return "redirect:/SpSession";
         }
         try {
             if (isSigned)
@@ -110,6 +110,11 @@ public class MainController {
                 IOException e) {
             return "badRequest";
         }
+    }
+
+    @GetMapping(value = {"/SpSession"})
+    public String spSession() {
+        return "/spSession";
     }
 
     @GetMapping(value = "/sloPostBinding")
